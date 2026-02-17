@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+  <!--
+    VERSION 3 — Trainer Portal
+    Extends the existing 'trainer' table (created in V2) with fields
+    needed for the Trainer Portal self-service login experience.
+    All changes are additive — fully backward compatible with V2.
+    V4 placeholder comments are included for future extension.
+  -->
+
+  <changeSet id="006" author="trainer-portal-v3" labels="v3" context="dev,staging,prod">
+    <comment>Add trainer portal auth fields to trainer table</comment>
+
+    <!-- Last login timestamp for audit/security -->
+    <addColumn tableName="trainer">
+      <column name="last_login_at" type="TIMESTAMP">
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>
+
+    <!-- Password reset token (for forgot-password flow) -->
+    <addColumn tableName="trainer">
+      <column name="reset_token" type="VARCHAR(255)">
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>
+
+    <!-- Reset token expiry -->
+    <addColumn tableName="trainer">
+      <column name="reset_token_expiry" type="TIMESTAMP">
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>
+
+    <!-- Trainer bio / short description for their profile -->
+    <addColumn tableName="trainer">
+      <column name="bio" type="TEXT">
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>
+
+    <!-- Profile image URL (CDN or S3 link) -->
+    <addColumn tableName="trainer">
+      <column name="profile_image_url" type="VARCHAR(500)">
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>
+
+    <!-- Portal access flag — admin can enable/disable trainer portal access -->
+    <addColumn tableName="trainer">
+      <column name="portal_access" type="BOOLEAN" defaultValueBoolean="true">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+
+    <!-- Index for reset_token lookups -->
+    <createIndex tableName="trainer" indexName="idx_trainer_reset_token">
+      <column name="reset_token"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="007" author="trainer-portal-v3" labels="v3" context="dev,staging,prod">
+    <comment>Create trainer_sessions table for JWT audit trail</comment>
+
+    <createTable tableName="trainer_session">
+      <column name="id" type="BIGSERIAL">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="pk_trainer_session"/>
+      </column>
+      <column name="trainer_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="jti" type="VARCHAR(255)">
+        <constraints nullable="false" unique="true" uniqueConstraintName="uq_trainer_session_jti"/>
+      </column>
+      <column name="issued_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+        <constraints nullable="false"/>
+      </column>
+      <column name="expires_at" type="TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="is_revoked" type="BOOLEAN" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ip_address" type="VARCHAR(45)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint
+      baseTableName="trainer_session"
+      baseColumnNames="trainer_id"
+      constraintName="fk_trainer_session_trainer"
+      referencedTableName="trainer"
+      referencedColumnNames="id"
+      onDelete="CASCADE"/>
+
+    <createIndex tableName="trainer_session" indexName="idx_trainer_session_trainer_id">
+      <column name="trainer_id"/>
+    </createIndex>
+
+    <!--
+      ==========================================
+      VERSION 4 PLACEHOLDER
+      ==========================================
+      When V4 arrives, add new changesets in db/migrations/v4/ folder
+      and include them in db.changelog-master.xml.
+
+      Example V4 ideas:
+      - Add trainer_availability table (schedule management)
+      - Add trainer_rating table (student feedback)
+      - Add course_material table (trainer uploads)
+    -->
+  </changeSet>
+
+</databaseChangeLog>

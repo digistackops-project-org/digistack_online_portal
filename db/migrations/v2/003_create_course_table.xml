@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+  <changeSet id="003" author="admin-portal-v2" labels="v2" context="dev,staging,prod">
+    <comment>Create course table for course management microservice</comment>
+
+    <createTable tableName="course" schemaName="public">
+      <column name="id" type="BIGSERIAL">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="pk_course"/>
+      </column>
+      <column name="course_name" type="VARCHAR(200)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="course_fees" type="DECIMAL(10,2)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="course_duration" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="trainer_id" type="BIGINT">
+        <constraints nullable="true"/>
+      </column>
+      <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+        <constraints nullable="false"/>
+      </column>
+      <column name="updated_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <createIndex tableName="course" indexName="idx_course_trainer_id">
+      <column name="trainer_id"/>
+    </createIndex>
+
+    <sql>
+      CREATE TRIGGER trg_course_updated_at
+        BEFORE UPDATE ON course
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    </sql>
+  </changeSet>
+
+</databaseChangeLog>

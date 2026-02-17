@@ -1,0 +1,45 @@
+{
+  "name": "auth-service",
+  "version": "1.0.0",
+  "description": "Admin Portal Auth Service - Login, Signup, Forgot Password",
+  "main": "src/server.js",
+  "scripts": {
+    "start":        "node src/server.js",
+    "dev":          "nodemon src/server.js",
+    "test":         "jest --runInBand --forceExit --coverage",
+    "test:unit":    "jest --testPathPattern=tests/unit --runInBand --forceExit",
+    "test:integration": "jest --testPathPattern=tests/integration --runInBand --forceExit",
+    "test:api":     "jest --testPathPattern=tests/api --runInBand --forceExit",
+    "lint":         "eslint src/ --ext .js"
+  },
+  "dependencies": {
+    "bcryptjs":          "^2.4.3",
+    "cors":              "^2.8.5",
+    "dotenv":            "^16.4.5",
+    "express":           "^4.19.2",
+    "express-rate-limit":"^7.3.1",
+    "express-validator": "^7.1.0",
+    "helmet":            "^7.1.0",
+    "jsonwebtoken":      "^9.0.2",
+    "morgan":            "^1.10.0",
+    "pg":                "^8.12.0",
+    "winston":           "^3.13.0",
+    "compression":       "^1.7.4",
+    "uuid":              "^10.0.0"
+  },
+  "devDependencies": {
+    "jest":           "^29.7.0",
+    "supertest":      "^7.0.0",
+    "nodemon":        "^3.1.4",
+    "eslint":         "^8.57.0",
+    "@jest/globals":  "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": ["src/**/*.js"],
+    "testTimeout": 30000,
+    "setupFilesAfterFramework": ["./src/tests/setup.js"]
+  },
+  "engines": { "node": ">=18.0.0" }
+}

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+  <changeSet id="001" author="admin-portal-v1" labels="v1" context="dev,staging,prod">
+    <comment>Create employee table for authentication and user management</comment>
+
+    <createTable tableName="employee" schemaName="public">
+      <column name="id" type="BIGSERIAL">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="pk_employee"/>
+      </column>
+      <column name="name" type="VARCHAR(150)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="email" type="VARCHAR(255)">
+        <constraints nullable="false" unique="true" uniqueConstraintName="uq_employee_email"/>
+      </column>
+      <column name="password_hash" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="mobile" type="VARCHAR(20)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="gender" type="VARCHAR(10)">
+        <constraints nullable="true" checkConstraint="gender IN ('male','female')"/>
+      </column>
+      <column name="marital_status" type="VARCHAR(20)">
+        <constraints nullable="true" checkConstraint="marital_status IN ('married','unmarried')"/>
+      </column>
+      <column name="role" type="VARCHAR(50)" defaultValue="admin">
+        <constraints nullable="false"/>
+      </column>
+      <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+        <constraints nullable="false"/>
+      </column>
+      <column name="reset_token" type="VARCHAR(255)">
+        <constraints nullable="true"/>
+      </column>
+      <column name="reset_token_expiry" type="TIMESTAMP">
+        <constraints nullable="true"/>
+      </column>
+      <column name="created_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+        <constraints nullable="false"/>
+      </column>
+      <column name="updated_at" type="TIMESTAMP" defaultValueComputed="NOW()">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <createIndex tableName="employee" indexName="idx_employee_email">
+      <column name="email"/>
+    </createIndex>
+
+    <sql>
+      CREATE OR REPLACE FUNCTION update_updated_at_column()
+      RETURNS TRIGGER AS $$
+      BEGIN
+        NEW.updated_at = NOW();
+        RETURN NEW;
+      END;
+      $$ language 'plpgsql';
+
+      CREATE TRIGGER trg_employee_updated_at
+        BEFORE UPDATE ON employee
+        FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    </sql>
+  </changeSet>
+
+  <!-- Seed: default super admin (password: Admin@123) -->
+  <changeSet id="001-seed" author="admin-portal-v1" labels="v1" context="dev,staging">
+    <comment>Seed default admin user for initial login</comment>
+    <sql>
+      INSERT INTO employee (name, email, password_hash, mobile, gender, marital_status, role)
+      VALUES (
+        'Super Admin',
+        'admin@adminportal.com',
+        '$2b$12$KIXZhObbY4CKJO4.v3KrHOtZ.n2k.8B7qPVAl9w8PJ1HJUz3aVXFC',
+        '9999999999',
+        'male',
+        'married',
+        'super_admin'
+      ) ON CONFLICT (email) DO NOTHING;
+    </sql>
+    <rollback>
+      DELETE FROM employee WHERE email = 'admin@adminportal.com';
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>
