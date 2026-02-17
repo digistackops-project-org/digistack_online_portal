@@ -1,0 +1,165 @@
+version: '3.9'
+
+# ================================================================
+# Admin Portal - Docker Compose (Development & Single-Server Prod)
+# ================================================================
+
+services:
+  # ─── PostgreSQL ───────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: ap_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       employeedb
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme_in_prod}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/seeds/00_create_database.sql:/docker-entrypoint-initdb.d/00_init.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - ap_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d employeedb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Liquibase Migrations ─────────────────────────────────────
+  liquibase:
+    image: liquibase/liquibase:4.27
+    container_name: ap_liquibase
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./db:/liquibase/changelog
+    command: >
+      --url=jdbc:postgresql://postgres:5432/employeedb
+      --username=postgres
+      --password=${DB_PASSWORD:-changeme_in_prod}
+      --changeLogFile=changelog/migrations/db.changelog-master.xml
+      update
+    networks:
+      - ap_network
+
+  # ─── Auth Service ─────────────────────────────────────────────
+  auth-service:
+    build:
+      context: ./backend/auth-service
+      dockerfile: Dockerfile
+    container_name: ap_auth
+    restart: unless-stopped
+    depends_on:
+      liquibase:
+        condition: service_completed_successfully
+    environment:
+      NODE_ENV:         production
+      PORT:             4001
+      DB_HOST:          postgres
+      DB_PORT:          5432
+      DB_NAME:          employeedb
+      DB_USER:          postgres
+      DB_PASSWORD:      ${DB_PASSWORD:-changeme_in_prod}
+      JWT_SECRET:       ${JWT_SECRET:-change_this_secret_NOW}
+      JWT_EXPIRES_IN:   8h
+      ALLOWED_ORIGINS:  ${ALLOWED_ORIGINS:-http://localhost:3000}
+    ports:
+      - "4001:4001"
+    networks:
+      - ap_network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4001/health/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ─── Course Service ───────────────────────────────────────────
+  course-service:
+    build:
+      context: ./backend/course-service
+      dockerfile: Dockerfile
+    container_name: ap_courses
+    restart: unless-stopped
+    depends_on:
+      liquibase:
+        condition: service_completed_successfully
+    environment:
+      NODE_ENV:       production
+      PORT:           4002
+      DB_HOST:        postgres
+      DB_PORT:        5432
+      DB_NAME:        employeedb
+      DB_USER:        postgres
+      DB_PASSWORD:    ${DB_PASSWORD:-changeme_in_prod}
+      JWT_SECRET:     ${JWT_SECRET:-change_this_secret_NOW}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+    ports:
+      - "4002:4002"
+    networks:
+      - ap_network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4002/health/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ─── Trainer Service ──────────────────────────────────────────
+  trainer-service:
+    build:
+      context: ./backend/trainer-service
+      dockerfile: Dockerfile
+    container_name: ap_trainers
+    restart: unless-stopped
+    depends_on:
+      liquibase:
+        condition: service_completed_successfully
+    environment:
+      NODE_ENV:       production
+      PORT:           4003
+      DB_HOST:        postgres
+      DB_PORT:        5432
+      DB_NAME:        employeedb
+      DB_USER:        postgres
+      DB_PASSWORD:    ${DB_PASSWORD:-changeme_in_prod}
+      JWT_SECRET:     ${JWT_SECRET:-change_this_secret_NOW}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+    ports:
+      - "4003:4003"
+    networks:
+      - ap_network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4003/health/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ─── Frontend (Nginx) ─────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_AUTH_URL:    ${REACT_APP_AUTH_URL:-http://localhost:4001}
+        REACT_APP_COURSE_URL:  ${REACT_APP_COURSE_URL:-http://localhost:4002}
+        REACT_APP_TRAINER_URL: ${REACT_APP_TRAINER_URL:-http://localhost:4003}
+    container_name: ap_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    networks:
+      - ap_network
+    depends_on:
+      - auth-service
+      - course-service
+      - trainer-service
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  ap_network:
+    driver: bridge
