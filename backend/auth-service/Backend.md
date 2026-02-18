@@ -38,7 +38,7 @@ sudo dnf install -y postgresql16
 #### Step:2 ==> Execute your "init.sql" script for your Application DB setup
 
 ```
-PGPASSWORD="Admin@123" psql -h <DB-Private-IP> -U dbadmin -d postgres -f initdb.sql
+PGPASSWORD="Admin@123" psql -h <DB-Private-IP> -U dbadmin -d postgres -f /apps/digistack_online_portal/db/seeds/00_create_database.sql
 ```
 #### Step:3 ==> Create Tables using LiquiBase Db versioning Tool
 ##### Install LiquiBase Tool
@@ -65,10 +65,12 @@ sudo liquibase \
   --url="jdbc:postgresql://<DB-Private-IP>:5432/<DB-Name>" \
   --username=<DB-Username> \
   --password=<DB-Password> \
-  --changeLogFile=migrations/db.changelog-master.xml \
+  --changeLogFile=/apps/digistack_online_portal/db/migrations/db.changelog-master.xml \
   update
 ```
 ## Add .env for DB Credentials 
+```
+cd /apps/digistack_online_portal/backend/auth-service
 ```
 sudo vim .env
 ```
@@ -131,7 +133,7 @@ sudo npm install -g pm2
 ```
 To run these Backend Application up and Running we use Pm2 service
 ```
-sudo pm2 start app.js --name auth-service
+sudo pm2 start server.js --name auth-service
 ```
 <img width="1089" height="110" alt="image" src="https://github.com/user-attachments/assets/4acd9488-9434-4dc3-86a1-c598bd6658c0" />
 
