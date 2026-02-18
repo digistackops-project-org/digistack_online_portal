@@ -36,9 +36,19 @@ sudo chown -R ec2-user:ec2-user /apps/digistack_online_portal
 ```
 cd frontend
 ```
+### Frontend Setup
+ Add .env for Backend Credentials 
+```
+sudo vim .env
+```
+```
+REACT_APP_AUTH_URL=https://<Auth-Private-IP>:4001
+```
+Install Dependencies
 ```
 npm install
 ```
+Start the UI {for Dev, not recommend for PROD}
 ```
 npm start
 ```
