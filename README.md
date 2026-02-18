@@ -17,7 +17,7 @@ We Manually create DB and Tables that lead human error like forget to create Tab
 so we use Tool "📖 **[Liquibase](Liquibase.md)** — To know more about It
 
 #### Steup DB
-To setup DB "📖 **[DB Setup](Liquibase.md)**
+To setup DB "📖 **[DB Setup](db/DB-Tier.md)**
 
 # What we do in Backend side
 
@@ -30,10 +30,10 @@ We use NodeJS for Backend Auth Service
 2. While user Signup to Admin portal from frontend -> auth servive -> will update user info into employee table
 ```
 #### Steup Backend
-To setup Backend "📖 **[Backend Setup](Liquibase.md)**
+To setup Backend "📖 **[Backend Setup](backend/auth-service/Backend.md)**
 
 # What we do in Frontend side
 We use React for Frontend UI
 
 #### Steup Backend
-To setup Frontend "📖 **[Frontend Setup](Liquibase.md)**
+To setup Frontend "📖 **[Frontend Setup](frontend/frontend.md)**
