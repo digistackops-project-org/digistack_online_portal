@@ -72,6 +72,12 @@ sudo liquibase \
 ```
 cd /apps/digistack_online_portal/backend/auth-service
 ```
+Get the JWT_SECRTE and JWT_REFRESH_SECRET
+```
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+```
+
+```
 sudo vim .env
 ```
 ```
@@ -120,8 +126,21 @@ LOG_LEVEL=info
 ```
 npm install
 ```
+## Run the test cases 
 
-## Start the App
+To Run Unit Testcases
+```
+npm run test:unit
+```
+To Run Integration Testcases
+```
+npm run test:integration
+```
+To Run API Testcases
+```
+npm run test:api
+```
+## Start the App {in Non-Prod not recommend in PROD}
 ```
 npm start
 ```
