@@ -140,6 +140,11 @@ To Run API Testcases
 ```
 npm run test:api
 ```
+To run all the test cases 
+```
+npm test
+```
+Our Backend Coverage Reports are Stored in "coverage" Folder in the path "backend/auth-service/coverage/index.html"
 ## Start the App {in Non-Prod not recommend in PROD}
 ```
 npm start
