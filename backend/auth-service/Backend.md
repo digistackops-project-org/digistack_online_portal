@@ -44,11 +44,14 @@ PGPASSWORD="Admin@123" psql -h <DB-Private-IP> -U dbadmin -d postgres -f /apps/d
 ##### Install LiquiBase Tool
 ###### Step:1 -> install JAVA Tool
 ```
-sudo apt install -y default-jdk
+sudo dnf update -y
+sudo yum install java-17-amazon-corretto-devel -y
 ```
 ###### Step:2 -> Download Liquibase
 ```
+cd
 sudo wget https://github.com/liquibase/liquibase/releases/download/v4.27.0/liquibase-4.27.0.tar.gz
+sudo mkdir -p /opt/liquibase
 sudo tar xzf liquibase-4.27.0.tar.gz -C /opt/liquibase
 sudo ln -s /opt/liquibase/liquibase /usr/local/bin/liquibase
 ```
@@ -58,14 +61,14 @@ sudo wget https://jdbc.postgresql.org/download/postgresql-42.7.3.jar -O /opt/liq
 ```
 ##### Run  LiquiBase Migration
 ```
-cd db
+cd /apps/digistack_online_portal/db/
 ```
 ```
 sudo liquibase \
   --url="jdbc:postgresql://<DB-Private-IP>:5432/<DB-Name>" \
   --username=<DB-Username> \
   --password=<DB-Password> \
-  --changeLogFile=/apps/digistack_online_portal/db/migrations/db.changelog-master.xml \
+  --changeLogFile=migrations/db.changelog-master.xml \
   update
 ```
 ## Add .env for DB Credentials 
