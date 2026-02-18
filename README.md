@@ -1,5 +1,6 @@
 # Here is the Architecture Diagram for V1-Admin Portal
-<img width="1097" height="381" alt="image" src="https://github.com/user-attachments/assets/d72bc87f-7202-47eb-a911-f3da7d9f3493" />
+<img width="1439" height="365" alt="image" src="https://github.com/user-attachments/assets/f0e5b3b7-bd45-4bd8-87d6-4408b80c566f" />
+
 
 <img width="1099" height="576" alt="image" src="https://github.com/user-attachments/assets/b9aeda1a-d6c6-455d-9181-d8381452dbef" />
 
