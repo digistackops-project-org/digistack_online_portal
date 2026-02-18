@@ -33,13 +33,21 @@ cd digistack_online_portal
 sudo git checkout 00-V1-Admin_portal_Login
 sudo chown -R ec2-user:ec2-user /apps/digistack_online_portal
 ```
+```
 cd frontend
 ```
 ```
+npm install
+```
+```
+npm start
+```
+# We use Reverse Proxy "Nginx" {Production setup}
 Note => Nginx we we for 2 purpose 
-        (1) For Frontend Load Balancing 
-        (2) For Backend Reverse Proxy
-
+```
+        1. For Frontend Load Balancing 
+        2. For Backend Reverse Proxy
+```
 when we hit our Application using frontend URL it connect to Backend using we mentioned URL in the same Browser
 --> As of now we pass "Backend-Public-IP" => so Browser our App from frontend it will connect to our Backend using Public IP {because from Browser public-Ip is accessable}, but it is a security Breach or Not accesptable in Production
 --> if we pass the Backend Private-IP {Private-IP not allowed to access from Browser, private -Ip are for internal communication}, But pasing Backend Private-IP is the good practice
@@ -77,4 +85,13 @@ Copy build/ to /var/www/html or Nginx root
 sudo rm -rf /var/www/frontend/*
 sudo mv build/* /var/www/frontend/
 sudo systemctl restart nginx
+```
+### Open Browser to check Application
+```
+http://<DB-Public-IP>:3000
+```
+Default Login usr and Password
+```
+Email:    admin@adminportal.com
+Password: Admin@123
 ```
