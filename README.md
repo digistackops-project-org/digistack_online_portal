@@ -2,11 +2,12 @@
 <img width="1439" height="365" alt="image" src="https://github.com/user-attachments/assets/f0e5b3b7-bd45-4bd8-87d6-4408b80c566f" />
 
 
-<img width="1099" height="576" alt="image" src="https://github.com/user-attachments/assets/b9aeda1a-d6c6-455d-9181-d8381452dbef" />
+<img width="1402" height="546" alt="image" src="https://github.com/user-attachments/assets/7c5d05fe-4c27-4047-9325-43e37863a394" />
 
 
 
-# What we do from Db side
+
+# What we do from DB side
 ```
 1. Install and setup PostgreSQl
 2. Create Database "EmployeeDB" and under that create Table "employee"
