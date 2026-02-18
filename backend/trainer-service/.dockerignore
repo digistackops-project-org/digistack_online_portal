@@ -1,7 +1,0 @@
-node_modules
-npm-debug.log
-coverage
-.env
-.git
-logs
-*.test.js

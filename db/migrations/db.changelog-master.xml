@@ -9,12 +9,5 @@
   <include file="v1/001_create_employee_table.xml" relativeToChangelogFile="true"/>
 
   <!-- ===================== VERSION 2 ===================== -->
-  <!-- Uncomment when deploying Version 2 -->
-  <include file="v2/002_create_trainer_table.xml" relativeToChangelogFile="true"/>
-  <include file="v2/003_create_course_table.xml"  relativeToChangelogFile="true"/>
-  <include file="v2/004_add_fk_course_trainer.xml" relativeToChangelogFile="true"/>
-
-  <!-- ===================== VERSION 3 (placeholder) ===================== -->
-  <!-- Add v3 includes here when ready -->
-
+ 
 </databaseChangeLog>
