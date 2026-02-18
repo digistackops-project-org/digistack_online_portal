@@ -48,6 +48,25 @@ Install Dependencies
 ```
 npm install
 ```
+## Run the test cases 
+
+To Run Unit Testcases
+```
+npm run test:unit
+```
+To Run Integration Testcases
+```
+npm run test:integration
+```
+To Run API Testcases
+```
+npm run test:api
+```
+To run all the test cases 
+```
+npm test
+```
+Our Frontend Coverage Reports are Stored in "coverage" Folder in the path "frontend/coverage/lcov-report/index.html"
 Start the UI {for Dev, not recommend for PROD}
 ```
 npm start
