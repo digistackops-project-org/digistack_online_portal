@@ -90,7 +90,11 @@ Grant ability to create new databases and roles (similar to WITH GRANT OPTION)
 ```
 ALTER ROLE dbadmin CREATEDB CREATEROLE SUPERUSER;
 ```
-
+## To Run our LiquiBase and .sql scripts we need these Dependency
+```
+sudo yum install postgresql16-contrib
+sudo systemctl restart postgresql
+```
 
 # Check table created or Not under "users"
 ## Check these after executing "initdb.sql" script from Application server 
