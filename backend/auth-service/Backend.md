@@ -1,6 +1,5 @@
-## Launch EC2 "t2.micro" Instance and In Sg, Open port "5000" for Python Application 
-# Backend-Node.js Application server
-
+# Backend-Node.js Auth Service
+### Launch EC2 "t2.micro" Instance and In Sg, Open port "4001" for NodeJS Auth service Application 
 ## Install Node and NPM
 ```
 sudo yum update -y
@@ -31,15 +30,43 @@ cd backend/auth-service
 ```
 ## Setup your Application Database by executing "initdb.sql" script from Application-server
 
-Step:1 ==> install "POstgresql-Client" for communicate with POstgresql Database
+#### Step:1 ==> install "POstgresql-Client" for communicate with POstgresql Database
 ```
 sudo dnf update -y
 sudo dnf install -y postgresql16
 ```
-Step:2 ==> Execute your "init.sql" script for your Application DB setup
+#### Step:2 ==> Execute your "init.sql" script for your Application DB setup
 
 ```
 PGPASSWORD="Admin@123" psql -h <DB-Private-IP> -U dbadmin -d postgres -f initdb.sql
+```
+#### Step:3 ==> Create Tables using LiquiBase Db versioning Tool
+##### Install LiquiBase Tool
+###### Step:1 -> install JAVA Tool
+```
+sudo apt install -y default-jdk
+```
+###### Step:2 -> Download Liquibase
+```
+sudo wget https://github.com/liquibase/liquibase/releases/download/v4.27.0/liquibase-4.27.0.tar.gz
+sudo tar xzf liquibase-4.27.0.tar.gz -C /opt/liquibase
+sudo ln -s /opt/liquibase/liquibase /usr/local/bin/liquibase
+```
+###### Step:3 -> Download PostgreSQL JDBC driver for Liquibase
+```
+sudo wget https://jdbc.postgresql.org/download/postgresql-42.7.3.jar -O /opt/liquibase/lib/postgresql.jar
+```
+##### Run  LiquiBase Migration
+```
+cd db
+```
+```
+sudo liquibase \
+  --url="jdbc:postgresql://<DB-Private-IP>:5432/<DB-Name>" \
+  --username=<DB-Username> \
+  --password=<DB-Password> \
+  --changeLogFile=migrations/db.changelog-master.xml \
+  update
 ```
 ## Add .env for DB Credentials 
 ```
@@ -100,26 +127,26 @@ HERE it is not recommend in Production, so we follow the HA in Production
 
 Start Backend Application
 ```
-npm install -g pm2
+sudo npm install -g pm2
 ```
 To run these Backend Application up and Running we use Pm2 service
 ```
-pm2 start app.js --name auth-service
+sudo pm2 start app.js --name auth-service
 ```
 <img width="1089" height="110" alt="image" src="https://github.com/user-attachments/assets/4acd9488-9434-4dc3-86a1-c598bd6658c0" />
 
 To list all pm2 Services
 ```
-pm2 list
+sudo pm2 list
 ```
 To stop these pm2 service
 ```
-pm2 stop auth-service
+sudo pm2 stop auth-service
 ```
 <img width="1105" height="127" alt="image" src="https://github.com/user-attachments/assets/a584378a-fb91-4911-8112-51cf7e49ab0e" />
 
 To delete these pm2 service
 ```
-pm2 delete auth-service
+sudo pm2 delete auth-service
 ```
 
