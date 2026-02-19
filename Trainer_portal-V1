@@ -1,0 +1,265 @@
+You are a Principal Software Architect, DevOps Lead, QA Architect, and Enterprise DBA.
+
+We are building Trainer Portal Version-1.
+
+=====================================================
+IMPORTANT CONTEXT
+=====================================================
+
+- Admin Portal already exists.
+- PostgreSQL database: employeedb
+- Trainer table already exists (created by Admin portal).
+- We are NOT breaking existing schema.
+- Separate teams:
+    - Frontend team (Vue)
+    - Backend team (Python)
+    - DB team (Flyway migrations)
+    - QA team
+    - DevOps team
+- Deploying to Linux VM (non-containerized).
+- Must be container-ready in future.
+- Must follow enterprise Dev → QA → UAT → Prod promotion model.
+- Must merge into main branch safely.
+- Code must be production-grade and enterprise standard.
+- Include unit, integration, and API tests.
+- Include health endpoints:
+    /health
+    /health/live
+    /health/ready
+
+=====================================================
+TECH STACK REQUIREMENTS
+=====================================================
+
+Frontend:
+- Vue 3 (Vite)
+- Composition API
+- Pinia for state management
+- Vue Router
+- Axios API layer
+- Clean architecture
+- Reusable components
+- Animated UI (transitions + modern UX)
+- Environment-based config
+- Error boundaries
+- Loading states
+- Responsive UI
+
+Backend:
+- Python FastAPI
+- Pydantic validation
+- SQLAlchemy ORM
+- PostgreSQL
+- bcrypt password hashing
+- JWT authentication
+- Clean layered architecture:
+    router → service → repository
+- Structured logging
+- Exception handling middleware
+- Graceful shutdown
+- Environment-based config
+
+Database:
+- employeedb
+- trainer table
+- Flyway versioning must continue properly
+- Future Version-2 schema evolution ready
+
+=====================================================
+FUNCTIONAL REQUIREMENTS
+=====================================================
+
+1) Login Flow
+
+When trainer opens portal:
+- Show login screen (email + temp password)
+- Validate against employeedb.trainer table
+- If email not found → "User not found"
+- If password mismatch → "Wrong credentials"
+- If correct and is_temporary_password = true:
+    → Show New Password screen (forced reset)
+    → Save new hashed password
+    → Set is_temporary_password = false
+- Issue JWT after success
+
+2) Forget Password
+
+- Enter email
+- Enter new password + confirm password
+- Update trainer.password_hash
+- Set is_temporary_password = false
+
+=====================================================
+DATABASE REQUIREMENTS
+=====================================================
+
+Existing table: trainer
+
+If Version-1 requires modification, provide:
+
+V5__add_password_flags.sql (example future migration)
+V6__add_last_login_column.sql (future ready)
+
+Provide:
+- Flyway folder structure
+- Flyway config file
+- DB CI/CD pipeline example
+- Migration ordering strategy
+- How to avoid checksum conflicts
+- Rollback approach
+
+=====================================================
+HEALTH CHECK REQUIREMENTS
+=====================================================
+
+Provide:
+
+/health
+    → app + DB status
+/health/live
+    → application alive
+/health/ready
+    → DB connectivity check
+
+Ready must verify PostgreSQL connection pool.
+
+=====================================================
+TESTING REQUIREMENTS
+=====================================================
+
+Backend:
+- Pytest
+- Unit tests (service layer)
+- Integration tests (FastAPI + DB)
+- API tests (TestClient)
+- Coverage strategy
+
+Frontend:
+- Vitest
+- Vue Testing Library
+- API mocking
+- Component test for login + reset
+
+API:
+- Postman collection
+- Newman CI execution example
+
+=====================================================
+MERGE STRATEGY
+=====================================================
+
+We are merging into main branch.
+
+Provide:
+- Branch strategy
+- Version tagging (v1.0.0-trainer)
+- How to sync with Admin portal DB schema
+- Conflict resolution strategy
+
+=====================================================
+DEPLOYMENT REQUIREMENTS
+=====================================================
+
+Provide step-by-step documentation for:
+
+1) Developer Workflow
+   - Feature branch
+   - PR review
+   - Code scan
+   - Merge to develop
+
+2) Dev Deployment
+   - Install Python
+   - Create virtualenv
+   - Run Flyway migrate
+   - Start app with systemd or gunicorn
+
+3) QA Deployment
+   - Run integration tests
+   - Smoke tests
+   - Health endpoint validation
+
+4) UAT Deployment
+   - Business test
+   - Password reset flow validation
+
+5) Production Deployment
+   - Build artifact
+   - Run Flyway
+   - Deploy backend
+   - Configure Nginx reverse proxy
+   - SSL config
+   - Enable logging
+   - Health check validation
+   - Rollback strategy
+
+=====================================================
+CI/CD REQUIREMENTS
+=====================================================
+
+Provide:
+
+Backend pipeline YAML:
+- Install dependencies
+- Run unit tests
+- Run integration tests
+- Build artifact
+- Deploy to VM
+- Health check validation
+
+Frontend pipeline YAML:
+- Install
+- Test
+- Build
+- Deploy static files to Nginx
+
+DB pipeline YAML:
+- Validate migration
+- Run migrate
+- Notify teams
+
+=====================================================
+CONTAINER READINESS
+=====================================================
+
+Even though deploying to VM:
+
+- Provide Dockerfile draft
+- Provide docker-compose draft
+- Use env-based config
+- Avoid hardcoded paths
+- Use uvicorn/gunicorn production server
+
+=====================================================
+SECURITY REQUIREMENTS
+=====================================================
+
+- bcrypt hashing
+- JWT expiration
+- CORS config
+- Secure headers
+- No stack traces in prod
+- Rate limiting
+- Environment variables only
+
+=====================================================
+RESPONSE STRUCTURE REQUIRED
+=====================================================
+
+1) High-level architecture explanation
+2) Folder structure (frontend + backend + db)
+3) Flyway migration scripts
+4) Backend production code skeleton
+5) Frontend production structure
+6) Unit test samples
+7) Integration test samples
+8) API test samples
+9) Dev → QA → UAT → Prod documentation
+10) CI/CD YAML examples
+11) Merge strategy
+12) Future Version-2 & Version-3 readiness plan
+
+IMPORTANT:
+Do NOT provide demo-level simplified code.
+Everything must be enterprise-grade and production ready.
+System will go live on Linux VM.
