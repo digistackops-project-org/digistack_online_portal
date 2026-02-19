@@ -1,265 +1,247 @@
-You are a Principal Software Architect, DevOps Lead, QA Architect, and Enterprise DBA.
+You are a Principal Software Architect, Python Backend Lead, Vue Frontend Lead, Enterprise DBA, QA Architect, and DevOps Lead.
 
 We are building Trainer Portal Version-1.
 
-=====================================================
-IMPORTANT CONTEXT
-=====================================================
+IMPORTANT CONTEXT:
 
-- Admin Portal already exists.
-- PostgreSQL database: employeedb
-- Trainer table already exists (created by Admin portal).
-- We are NOT breaking existing schema.
+- This is part of a single main branch repository.
+- Admin Portal already exists in the main branch (React + Node).
+- Trainer Portal must be added without breaking Admin Portal.
+- Shared PostgreSQL database: employeedb.
+- Table "trainer" already exists (created in Admin Version-2).
+- We must follow Flyway version discipline.
 - Separate teams:
-    - Frontend team (Vue)
-    - Backend team (Python)
-    - DB team (Flyway migrations)
-    - QA team
-    - DevOps team
-- Deploying to Linux VM (non-containerized).
-- Must be container-ready in future.
-- Must follow enterprise Dev → QA → UAT → Prod promotion model.
-- Must merge into main branch safely.
-- Code must be production-grade and enterprise standard.
-- Include unit, integration, and API tests.
-- Include health endpoints:
-    /health
-    /health/live
-    /health/ready
+    - Frontend (Vue)
+    - Backend (Python)
+    - DB Team (Flyway)
+    - QA Team
+    - DevOps Team
+- Currently deploying to Linux VM.
+- Future containerization must be supported.
+- Must follow real enterprise Dev → QA → UAT → Prod workflow.
+- Code must be production-ready.
+- No demo-level code allowed.
 
-=====================================================
+========================================================
 TECH STACK REQUIREMENTS
-=====================================================
+========================================================
 
 Frontend:
-- Vue 3 (Vite)
-- Composition API
-- Pinia for state management
-- Vue Router
-- Axios API layer
-- Clean architecture
+- Vue 3 (Composition API)
+- Vite
+- Production folder structure
 - Reusable components
-- Animated UI (transitions + modern UX)
-- Environment-based config
+- Vue Router
+- Pinia state management
+- Axios API abstraction layer
+- Attractive UI animations
+- Responsive layout
+- Form validation
 - Error boundaries
-- Loading states
-- Responsive UI
+- Environment-based config
 
 Backend:
-- Python FastAPI
-- Pydantic validation
+- Python (FastAPI preferred)
+- Clean architecture (Router → Service → Repository)
 - SQLAlchemy ORM
-- PostgreSQL
+- Pydantic validation
 - bcrypt password hashing
-- JWT authentication
-- Clean layered architecture:
-    router → service → repository
+- JWT support (future ready)
+- Centralized error handling
 - Structured logging
-- Exception handling middleware
+- Security headers
+- CORS configuration
+- Rate limiting
 - Graceful shutdown
-- Environment-based config
 
 Database:
-- employeedb
-- trainer table
-- Flyway versioning must continue properly
-- Future Version-2 schema evolution ready
+- PostgreSQL (employeedb)
+- Table: trainer
+- Flyway versioning
+- Version-2 migration ready for future changes
 
-=====================================================
+========================================================
 FUNCTIONAL REQUIREMENTS
-=====================================================
+========================================================
 
-1) Login Flow
+LOGIN FLOW:
 
-When trainer opens portal:
-- Show login screen (email + temp password)
-- Validate against employeedb.trainer table
-- If email not found → "User not found"
-- If password mismatch → "Wrong credentials"
-- If correct and is_temporary_password = true:
-    → Show New Password screen (forced reset)
-    → Save new hashed password
-    → Set is_temporary_password = false
-- Issue JWT after success
+1) User enters:
+    - Email
+    - Temporary password (shared by admin)
 
-2) Forget Password
+2) If valid AND is_temporary_password = true:
+    → Redirect to "Set New Password" screen
+    → Save new password as permanent
+    → Update:
+        - password_hash
+        - is_temporary_password = false
+        - updated_at
 
-- Enter email
-- Enter new password + confirm password
-- Update trainer.password_hash
-- Set is_temporary_password = false
+3) If password mismatch:
+    → Show "Wrong credentials"
 
-=====================================================
-DATABASE REQUIREMENTS
-=====================================================
+4) Forgot Password:
+    - Enter email
+    - Enter new password
+    - Update password_hash
 
-Existing table: trainer
-
-If Version-1 requires modification, provide:
-
-V5__add_password_flags.sql (example future migration)
-V6__add_last_login_column.sql (future ready)
-
-Provide:
-- Flyway folder structure
-- Flyway config file
-- DB CI/CD pipeline example
-- Migration ordering strategy
-- How to avoid checksum conflicts
-- Rollback approach
-
-=====================================================
-HEALTH CHECK REQUIREMENTS
-=====================================================
-
-Provide:
+========================================================
+HEALTH CHECK ENDPOINTS
+========================================================
 
 /health
-    → app + DB status
 /health/live
-    → application alive
 /health/ready
-    → DB connectivity check
 
-Ready must verify PostgreSQL connection pool.
+Ready endpoint must verify DB connectivity.
 
-=====================================================
+========================================================
+FLYWAY REQUIREMENTS
+========================================================
+
+If trainer table exists:
+Create:
+
+V5__add_trainer_password_flags.sql
+
+Include:
+- is_temporary_password boolean default true
+- updated_at column
+
+Also create:
+V6__add_index_on_trainer_email.sql
+
+Provide Flyway folder structure and configuration.
+
+========================================================
 TESTING REQUIREMENTS
-=====================================================
+========================================================
 
 Backend:
-- Pytest
 - Unit tests (service layer)
-- Integration tests (FastAPI + DB)
-- API tests (TestClient)
-- Coverage strategy
+- Integration tests (API + DB)
+- API tests (pytest + httpx)
+- Coverage config
 
 Frontend:
-- Vitest
-- Vue Testing Library
-- API mocking
-- Component test for login + reset
+- Component unit tests
+- Store tests
+- API mock tests
 
-API:
-- Postman collection
-- Newman CI execution example
+Version-3:
+- Add E2E test planning strategy (Cypress)
 
-=====================================================
-MERGE STRATEGY
-=====================================================
-
-We are merging into main branch.
-
-Provide:
-- Branch strategy
-- Version tagging (v1.0.0-trainer)
-- How to sync with Admin portal DB schema
-- Conflict resolution strategy
-
-=====================================================
+========================================================
 DEPLOYMENT REQUIREMENTS
-=====================================================
+========================================================
 
-Provide step-by-step documentation for:
+Must provide enterprise documentation:
 
-1) Developer Workflow
-   - Feature branch
-   - PR review
-   - Code scan
-   - Merge to develop
+1) Developer Flow:
+    - Feature branch
+    - PR review
+    - Merge to develop
+    - Tagging strategy
 
-2) Dev Deployment
-   - Install Python
-   - Create virtualenv
-   - Run Flyway migrate
-   - Start app with systemd or gunicorn
+2) Dev Environment:
+    - Setup virtualenv
+    - Install dependencies
+    - Run Flyway migration
+    - Start FastAPI server
+    - Start Vue app
 
-3) QA Deployment
-   - Run integration tests
-   - Smoke tests
-   - Health endpoint validation
+3) QA:
+    - Run integration tests
+    - API tests
+    - Health endpoint verification
 
-4) UAT Deployment
-   - Business test
-   - Password reset flow validation
+4) UAT:
+    - Business validation
+    - Password reset flow verification
 
-5) Production Deployment
-   - Build artifact
-   - Run Flyway
-   - Deploy backend
-   - Configure Nginx reverse proxy
-   - SSL config
-   - Enable logging
-   - Health check validation
-   - Rollback strategy
+5) Production:
+    - Build frontend
+    - Package backend
+    - SCP to VM
+    - Run Flyway migrate
+    - Start with Gunicorn
+    - Setup Nginx reverse proxy
+    - Setup SSL
+    - Configure systemd service
+    - Verify health endpoints
 
-=====================================================
+========================================================
 CI/CD REQUIREMENTS
-=====================================================
+========================================================
 
 Provide:
 
 Backend pipeline YAML:
-- Install dependencies
-- Run unit tests
-- Run integration tests
+- Lint
+- Unit tests
+- Integration tests
+- Coverage report
 - Build artifact
-- Deploy to VM
-- Health check validation
+- Deploy stage
 
 Frontend pipeline YAML:
 - Install
-- Test
+- Unit test
 - Build
-- Deploy static files to Nginx
+- Deploy
 
-DB pipeline YAML:
+DB pipeline:
 - Validate migration
-- Run migrate
-- Notify teams
+- Flyway migrate
+- Rollback strategy
 
-=====================================================
+========================================================
+MERGE STRATEGY
+========================================================
+
+- Admin portal must not break.
+- Shared database discipline.
+- Use semantic versioning:
+    Trainer Portal v1.0.0
+- Git branching strategy:
+    main
+    develop
+    feature/*
+    release/*
+
+Provide safe merge checklist.
+
+========================================================
 CONTAINER READINESS
-=====================================================
+========================================================
 
-Even though deploying to VM:
+Provide:
+- Dockerfile for FastAPI
+- Dockerfile for Vue
+- docker-compose example
+- Env-based configuration
+- No hardcoded secrets
 
-- Provide Dockerfile draft
-- Provide docker-compose draft
-- Use env-based config
-- Avoid hardcoded paths
-- Use uvicorn/gunicorn production server
-
-=====================================================
-SECURITY REQUIREMENTS
-=====================================================
-
-- bcrypt hashing
-- JWT expiration
-- CORS config
-- Secure headers
-- No stack traces in prod
-- Rate limiting
-- Environment variables only
-
-=====================================================
+========================================================
 RESPONSE STRUCTURE REQUIRED
-=====================================================
+========================================================
 
-1) High-level architecture explanation
+1) High-level architecture
 2) Folder structure (frontend + backend + db)
-3) Flyway migration scripts
-4) Backend production code skeleton
-5) Frontend production structure
-6) Unit test samples
-7) Integration test samples
-8) API test samples
+3) Flyway scripts
+4) Backend production skeleton
+5) Frontend production skeleton
+6) Sample unit test
+7) Sample integration test
+8) Sample API test
 9) Dev → QA → UAT → Prod documentation
 10) CI/CD YAML examples
-11) Merge strategy
-12) Future Version-2 & Version-3 readiness plan
+11) Merge strategy documentation
+12) Container readiness plan
 
 IMPORTANT:
-Do NOT provide demo-level simplified code.
-Everything must be enterprise-grade and production ready.
-System will go live on Linux VM.
+Everything must follow enterprise production standards.
+System must be ready for VM deployment.
+Code must be container-ready.
+Do not provide simplified demo examples.
