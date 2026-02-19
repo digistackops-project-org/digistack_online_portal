@@ -1,0 +1,299 @@
+You are a Principal Software Architect, DevOps Lead, QA Architect, and Enterprise DBA.
+
+We are building Admin Portal Version-2.
+
+IMPORTANT CONTEXT:
+
+- Version-1 already exists in main branch.
+- Version-1 contains authentication and employee module.
+- We are adding Version-2 features without breaking Version-1.
+- Code must be backward compatible.
+- DB migrations must follow Flyway versioning (incremental).
+- Separate teams: Frontend, Backend, DB, QA, DevOps.
+- Deploying to Linux VM (non-containerized currently).
+- Code must be container-ready for future Docker/K8s.
+- Follow real enterprise Dev → QA → UAT → Prod promotion model.
+- Microservices architecture.
+- Each module must be independently scalable in future.
+
+=====================================================
+VERSION-2 REQUIREMENTS
+=====================================================
+
+After login into Admin Portal:
+
+Show 3 buttons:
+
+1) Courses
+2) Trainer
+3) Student (clickable placeholder, future Version-3)
+
+Each button connects to separate backend microservice.
+
+=====================================================
+DATABASE REQUIREMENTS
+=====================================================
+
+Database: employeedb
+
+Version-1 already has:
+- employee table
+
+Version-2 needs new tables:
+- course
+- trainer
+
+Provide Flyway migration scripts:
+
+V2__create_trainer_table.sql
+V3__create_course_table.sql
+V4__add_foreign_keys_and_indexes.sql
+
+Keep Version-3 future-ready.
+
+=====================================================
+TABLE STRUCTURES
+=====================================================
+
+trainer:
+- id (UUID PK)
+- name
+- mobile
+- email (unique)
+- course_id (FK)
+- password_hash
+- is_temporary_password (boolean)
+- created_at
+- updated_at
+
+course:
+- id (UUID PK)
+- course_name
+- course_fees
+- course_duration
+- trainer_id (FK)
+- created_at
+- updated_at
+
+Indexes:
+- unique email on trainer
+- index on course_name
+- foreign key indexes
+
+=====================================================
+COURSE MICROSERVICE
+=====================================================
+
+Features:
+- GET /courses (list)
+- POST /courses (add course)
+- Fetch trainer names dropdown from trainer table
+
+Backend:
+- Clean architecture (Controller → Service → Repository)
+- DTO validation
+- Proper error handling
+- Logging
+- Health endpoints:
+    /health
+    /health/live
+    /health/ready
+
+Frontend:
+- Courses page
+- Table view (list)
+- Add Course modal
+- Dropdown trainer fetch
+- Clean animation
+- Loading states
+- Error states
+
+Tests Required:
+Backend:
+- Unit tests (service layer)
+- Integration tests (controller + DB)
+- API tests (supertest)
+
+Frontend:
+- Component unit test
+- API integration mock test
+
+=====================================================
+TRAINER MICROSERVICE
+=====================================================
+
+Features:
+- GET /trainers
+- POST /trainers
+
+When creating trainer:
+- Generate 6-digit random temporary password
+- Store hashed version
+- is_temporary_password = true
+- Admin shares temp password
+- Trainer will reset later
+
+Frontend:
+- Trainer list page
+- Add trainer modal
+- Course dropdown fetch from course table
+
+Tests Required:
+Backend:
+- Unit test
+- Integration test
+- API test
+
+Frontend:
+- Component test
+- API mock test
+
+=====================================================
+STUDENT MICROSERVICE
+=====================================================
+
+Clickable button only.
+Return 501 Not Implemented.
+Keep architecture ready for Version-3.
+
+=====================================================
+MERGE STRATEGY
+=====================================================
+
+We are merging into main branch.
+
+Provide:
+- Branch strategy
+- Migration version ordering
+- How to avoid Flyway checksum conflicts
+- Tagging strategy (v2.0.0)
+
+=====================================================
+HEALTH CHECK REQUIREMENTS
+=====================================================
+
+Each microservice must expose:
+
+/health → overall status
+/health/live → app alive
+/health/ready → DB readiness
+
+Ready check must verify PostgreSQL connectivity.
+
+=====================================================
+TESTING STRATEGY
+=====================================================
+
+Provide:
+
+Backend:
+- Jest config
+- Coverage strategy
+- Folder structure for tests
+
+Frontend:
+- Vitest or Jest
+- React Testing Library
+- Mock service worker strategy
+
+API Testing:
+- Postman collection structure
+- Newman CI execution
+
+=====================================================
+DEPLOYMENT STRATEGY
+=====================================================
+
+Provide enterprise documentation:
+
+1) Developer Workflow
+   - Feature branch
+   - Pull request
+   - Code review
+   - Merge to develop
+
+2) Dev Environment
+   - Build
+   - Run unit tests
+   - Run DB migrations
+   - Deploy to Dev VM
+
+3) QA Environment
+   - Integration tests
+   - API tests
+   - Smoke tests
+
+4) UAT
+   - Business validation
+   - Health endpoint verification
+
+5) Production
+   - Build artifact
+   - Flyway migrate
+   - Deploy service
+   - Restart using PM2
+   - Verify health endpoints
+   - Enable monitoring
+
+=====================================================
+CI/CD REQUIREMENTS
+=====================================================
+
+Provide:
+
+Backend pipeline YAML
+Frontend pipeline YAML
+DB migration pipeline YAML
+
+Include:
+- Build stage
+- Test stage
+- Code coverage
+- Artifact packaging
+- Deployment stage
+- Rollback stage
+
+=====================================================
+SECURITY REQUIREMENTS
+=====================================================
+
+- Helmet
+- CORS
+- Rate limiting
+- Password hashing bcrypt
+- Environment variables
+- Do not expose stack traces in prod
+
+=====================================================
+CONTAINER READINESS
+=====================================================
+
+Even though deploying to VM:
+
+- Provide Dockerfile draft
+- Provide docker-compose example
+- Ensure env-based config
+- Avoid hardcoded paths
+
+=====================================================
+RESPONSE STRUCTURE REQUIRED
+=====================================================
+
+1) High-level architecture diagram explanation
+2) Microservices breakdown
+3) Folder structure (frontend + backend + db)
+4) Flyway scripts (V2, V3, V4)
+5) Backend production structure
+6) Frontend production structure
+7) Unit test samples
+8) Integration test samples
+9) API test samples
+10) Dev → QA → UAT → Prod documentation
+11) CI/CD YAML examples
+12) Merge strategy documentation
+13) Future Version-3 readiness plan
+
+IMPORTANT:
+Do NOT provide demo-level simplified code.
+Everything must be enterprise production standard.
+This system will go live in production VM.
