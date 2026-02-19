@@ -1,0 +1,302 @@
+You are a Principal Enterprise Architect, Java Backend Lead, Angular Frontend Lead, DBA, DevOps Lead, and QA Architect.
+
+We are building Student Portal Version-1.
+
+IMPORTANT CONTEXT:
+
+- Single main branch repository.
+- Admin Portal (React + Node + PostgreSQL) exists.
+- Trainer Portal (Vue + Python + PostgreSQL + S3) exists.
+- Student Portal must be added without breaking existing portals.
+- Student Portal uses:
+    Frontend: Angular
+    Backend: Java (Spring Boot preferred)
+    Database: MySQL (separate DB)
+- Shared data (courses, upload, trainer info) is stored in PostgreSQL (employeedb).
+- Student data stored in MySQL (Studentdb).
+- Must follow enterprise Dev → QA → UAT → Prod promotion model.
+- Currently deployed on Linux VM.
+- Must be container-ready for future Docker/Kubernetes.
+- Separate teams:
+    - Angular Team
+    - Java Backend Team
+    - MySQL DB Team
+    - QA Team
+    - DevOps Team
+
+NO demo-level code allowed. Production-ready only.
+
+========================================================
+ARCHITECTURE REQUIREMENTS
+========================================================
+
+Student Portal must:
+
+1) Authenticate against MySQL (Studentdb).
+2) Fetch courses from PostgreSQL (employeedb).
+3) Fetch course description from PostgreSQL upload table.
+4) Generate S3 pre-signed URL for secure download.
+
+Architecture must support:
+- Two data sources in Spring Boot
+    - MySQL (Studentdb)
+    - PostgreSQL (employeedb)
+- Clean architecture layering
+- DTO mapping
+- Global exception handling
+- Health endpoints:
+    /health
+    /health/live
+    /health/ready
+
+========================================================
+DATABASE REQUIREMENTS
+========================================================
+
+MySQL Database: Studentdb
+
+Table: student
+
+Fields:
+- id (UUID PK)
+- name
+- email (unique)
+- mobile
+- password_hash
+- created_at
+- updated_at
+
+Provide:
+1) Plain .sql script for CI/CD simplicity
+2) Flyway migration scripts:
+   V1__create_student_table.sql
+   V2__add_index_on_email.sql
+
+Provide DB pipeline example.
+
+========================================================
+FUNCTIONAL REQUIREMENTS
+========================================================
+
+Landing Page:
+Display all course cards.
+Number of cards = total rows in PostgreSQL employeedb.course table.
+
+Card Layout:
+- 70% Course Name
+- 20% Course Fee
+- 10% Trainer Name
+
+When student clicks a card:
+Open Course Detail Page:
+
+Display:
+1) Description (from PostgreSQL upload table)
+2) Add to Cart button
+3) Download PDF button
+
+If user NOT registered:
+→ Popup Registration Form
+
+Registration Fields:
+- Name
+- Email
+- Mobile
+- Password
+- Confirm Password
+
+After successful registration:
+→ Login required
+→ Download enabled
+
+Download Flow:
+Student clicks download →
+Request goes to Java backend →
+Backend validates authentication →
+Backend generates S3 Pre-Signed URL →
+Return URL →
+Browser downloads directly from S3
+
+S3 bucket must remain private.
+
+========================================================
+BACKEND REQUIREMENTS (Spring Boot)
+========================================================
+
+- Spring Boot 3
+- JPA
+- Two DataSources configuration
+- Flyway integration
+- JWT authentication
+- BCrypt password hashing
+- Validation annotations
+- Global exception handler
+- Structured logging
+- Graceful shutdown
+
+Endpoints:
+
+GET /courses
+GET /courses/{id}
+POST /students/register
+POST /students/login
+GET /courses/{id}/download
+
+Health endpoints:
+- /health
+- /health/live
+- /health/ready (verify both DBs + S3)
+
+========================================================
+FRONTEND REQUIREMENTS (Angular)
+========================================================
+
+- Angular latest stable
+- Angular Material
+- Clean architecture
+- Feature modules
+- Route guards
+- Reactive forms
+- HTTP interceptor for JWT
+- Animated course cards
+- Loading indicators
+- Error states
+- Responsive layout
+- Environment config
+
+Pages:
+- Landing page (course cards)
+- Course detail page
+- Registration modal
+- Login page
+
+========================================================
+TESTING REQUIREMENTS
+========================================================
+
+Backend:
+- Unit tests (service layer)
+- Integration tests (controller + DB)
+- API tests (RestAssured or SpringBootTest)
+- Testcontainers for MySQL + PostgreSQL
+- Mock S3 in test
+
+Frontend:
+- Angular unit tests
+- Service tests
+- Component tests
+- Mock HTTP tests
+
+Future Version-2:
+- E2E plan (Cypress)
+
+========================================================
+MERGE STRATEGY
+========================================================
+
+Must merge safely into main branch.
+
+Provide:
+- Branching model
+- Versioning strategy:
+    Student Portal v1.0.0
+- Flyway sequencing guidance
+- How to avoid migration conflict
+
+Ensure:
+- Admin unaffected
+- Trainer unaffected
+
+========================================================
+DEPLOYMENT DOCUMENTATION REQUIRED
+========================================================
+
+Dev:
+- Setup MySQL locally
+- Setup PostgreSQL connection
+- Run Flyway migrate
+- Start Spring Boot
+- Start Angular
+
+QA:
+- Run integration tests
+- Run API tests
+- Verify both DB connections
+- Verify S3 pre-signed flow
+
+UAT:
+- Business validation
+- Registration flow test
+- Download flow test
+
+Production:
+- Build Angular
+- Build Spring Boot JAR
+- SCP to VM
+- Run Flyway migrate
+- Start app with systemd
+- Configure Nginx reverse proxy
+- Configure SSL
+- Verify:
+    /health
+    /health/live
+    /health/ready
+
+========================================================
+CI/CD REQUIREMENTS
+========================================================
+
+Backend pipeline:
+- Compile
+- Unit tests
+- Integration tests
+- Coverage
+- Package JAR
+- Deploy
+
+Frontend pipeline:
+- Install
+- Unit tests
+- Build
+- Deploy
+
+DB pipeline:
+- Validate SQL
+- Flyway migrate
+- Rollback documentation
+
+========================================================
+CONTAINER READINESS
+========================================================
+
+Provide:
+- Dockerfile (Spring Boot)
+- Dockerfile (Angular)
+- docker-compose example
+- Env-based config
+- No hardcoded credentials
+
+========================================================
+RESPONSE STRUCTURE REQUIRED
+========================================================
+
+1) High-level architecture explanation
+2) Multi-database configuration strategy
+3) Folder structure (frontend + backend + db)
+4) MySQL SQL script
+5) Flyway scripts
+6) Spring Boot production skeleton
+7) Angular production skeleton
+8) Sample unit test
+9) Sample integration test
+10) Sample API test
+11) Dev → QA → UAT → Prod documentation
+12) CI/CD YAML examples
+13) Safe merge checklist
+14) Future Version-2 roadmap
+
+IMPORTANT:
+Everything must be enterprise production standard.
+System must be VM deployable.
+System must be container-ready.
+No simplified examples.
