@@ -1,0 +1,308 @@
+You are a Principal Software Architect, Cloud Architect, Python Backend Lead, Vue Frontend Lead, Enterprise DBA, DevOps Lead, and QA Architect.
+
+We are building Trainer Portal Version-2.
+
+IMPORTANT CONTEXT:
+
+- This is a single repository main branch.
+- Admin Portal (React + Node) already exists.
+- Trainer Portal Version-1 (Vue + Python FastAPI) already exists.
+- We are adding Version-2 features WITHOUT breaking existing modules.
+- Shared PostgreSQL database: employeedb.
+- Must follow Flyway migration discipline.
+- Deployment currently on Linux VM.
+- Must be container-ready for future Docker/Kubernetes.
+- Teams are separate:
+    - Frontend Team (Vue)
+    - Backend Team (Python FastAPI)
+    - DB Team (Flyway)
+    - QA Team
+    - DevOps Team
+- Must follow enterprise Dev → QA → UAT → Prod promotion lifecycle.
+- No demo-level code. Everything production-ready.
+
+========================================================
+VERSION-2 FUNCTIONAL REQUIREMENTS
+========================================================
+
+After Trainer login:
+
+Display Course Cards related ONLY to logged-in trainer.
+
+Data source:
+- course table
+- trainer table
+- filter by trainer_id
+
+Cards UI Structure:
+- 70%: Course Name (from course table)
+- 20%: Course Fee (from course table)
+- 10%: Trainer Name (from course table)
+
+Number of cards = number of courses assigned to trainer.
+
+Cards are clickable.
+
+When clicked:
+→ Open Course Content Page.
+
+========================================================
+COURSE CONTENT PAGE REQUIREMENTS
+========================================================
+
+Trainer can:
+
+1) Add Course Description
+   - Save to upload table (description column)
+
+2) Upload PDF
+   - Store file in AWS S3
+   - Bucket must be private
+   - No public access
+   - Do NOT expose S3 directly
+   - Store metadata in upload table:
+        - id
+        - trainer_id
+        - course_id
+        - description
+        - file_name
+        - s3_key
+        - created_at
+
+========================================================
+SECURE DOWNLOAD FLOW (FOR FUTURE STUDENT PORTAL)
+========================================================
+
+Architecture:
+
+Student clicks download →
+Request goes to App Server (private subnet) →
+Backend validates auth →
+Generate S3 Pre-Signed URL →
+Return URL →
+Browser downloads directly from S3 →
+S3 remains private.
+
+Never expose private servers publicly.
+
+========================================================
+DATABASE REQUIREMENTS
+========================================================
+
+Database: employeedb
+
+Create new Flyway migration:
+
+V7__create_upload_table.sql
+
+Structure:
+
+upload:
+- id UUID PK
+- trainer_id UUID FK
+- course_id UUID FK
+- description TEXT
+- file_name VARCHAR
+- s3_key VARCHAR
+- created_at TIMESTAMP
+
+Also create:
+
+V8__add_indexes_upload_table.sql
+
+Indexes:
+- index on trainer_id
+- index on course_id
+
+Future Version-ready:
+- Add file_type column
+- Add file_size column
+
+========================================================
+BACKEND REQUIREMENTS (FastAPI)
+========================================================
+
+Architecture:
+- app/
+    - routers/
+    - services/
+    - repositories/
+    - schemas/
+    - core/
+    - db/
+
+Endpoints:
+
+GET /trainer/courses
+GET /trainer/course/{id}
+POST /trainer/course/{id}/content
+POST /trainer/course/{id}/upload
+GET /trainer/course/{id}/download (generate pre-signed URL)
+
+Health endpoints:
+- /health
+- /health/live
+- /health/ready (check DB + S3 connectivity)
+
+S3 integration:
+- boto3
+- Environment-based configuration
+- IAM role based auth (preferred)
+
+Security:
+- JWT validation
+- Role validation (trainer)
+- Input validation
+- File type validation (PDF only)
+- File size limit
+
+========================================================
+FRONTEND REQUIREMENTS (Vue 3)
+========================================================
+
+- Vue 3 Composition API
+- Pinia
+- Vue Router
+- Axios API layer
+- Animated course cards
+- Smooth hover effects
+- Loading spinner
+- Error state
+- Form validation
+- File upload progress bar
+- Environment config
+
+Pages:
+- Login
+- Trainer Dashboard (Cards)
+- Course Content Page
+
+========================================================
+TESTING REQUIREMENTS
+========================================================
+
+Backend:
+- Unit tests (service layer)
+- Integration tests (API + DB)
+- API tests (pytest + httpx)
+- Mock S3 in tests
+
+Frontend:
+- Component unit tests
+- Store tests
+- API mock tests
+- Upload flow test
+
+Future Version-3:
+- E2E plan using Cypress
+
+========================================================
+MERGE STRATEGY
+========================================================
+
+Must merge safely into main branch.
+
+Provide:
+- Branching strategy
+- Migration version sequencing
+- Flyway checksum safety
+- Version tagging:
+    Trainer Portal v2.0.0
+
+Ensure:
+- Admin Portal unaffected
+- Trainer v1 unaffected
+
+========================================================
+DEPLOYMENT DOCUMENTATION REQUIRED
+========================================================
+
+Dev Environment:
+- Setup Python venv
+- Install deps
+- Run Flyway migrate
+- Run FastAPI
+- Run Vue dev server
+
+QA:
+- Run integration tests
+- Run API tests
+- Validate S3 mock
+- Verify health endpoints
+
+UAT:
+- Manual flow validation
+- File upload validation
+- Pre-signed URL test
+
+Production:
+- Build frontend
+- Package backend
+- Run Flyway migrate
+- Start FastAPI with Gunicorn
+- Configure Nginx reverse proxy
+- Configure SSL
+- Setup systemd service
+- Verify:
+    /health
+    /health/live
+    /health/ready
+
+========================================================
+CI/CD REQUIREMENTS
+========================================================
+
+Backend pipeline:
+- Lint
+- Unit test
+- Integration test
+- Coverage
+- Build artifact
+- Deploy
+
+Frontend pipeline:
+- Install
+- Unit test
+- Build
+- Deploy
+
+DB pipeline:
+- Validate migration
+- Flyway migrate
+- Rollback documentation
+
+========================================================
+CONTAINER READINESS
+========================================================
+
+Provide:
+- Dockerfile (FastAPI)
+- Dockerfile (Vue)
+- docker-compose example
+- .env based config
+- No hardcoded secrets
+
+========================================================
+RESPONSE STRUCTURE REQUIRED
+========================================================
+
+1) High-level architecture explanation
+2) Microservice interaction diagram (text-based)
+3) Folder structure (frontend + backend + db)
+4) Flyway scripts (V7, V8)
+5) Backend production skeleton
+6) S3 pre-signed implementation example
+7) Frontend production skeleton
+8) Sample unit test
+9) Sample integration test
+10) Sample API test
+11) Dev → QA → UAT → Prod deployment document
+12) CI/CD YAML examples
+13) Safe merge checklist
+14) Future Version-3 readiness plan
+
+IMPORTANT:
+Everything must follow enterprise production standards.
+System must be VM deployable.
+System must be container-ready.
+Do not provide simplified examples.
