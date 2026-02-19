@@ -1,0 +1,289 @@
+You are a Principal Enterprise Architect, Java Backend Lead, Angular Frontend Lead, DBA, DevOps Lead, and QA Architect.
+
+We are building Student Portal Version-2.
+
+IMPORTANT CONTEXT:
+
+- Single monorepo main branch.
+- Admin Portal exists.
+- Trainer Portal exists.
+- Student Portal Version-1 exists.
+- We are adding Version-2 features WITHOUT breaking Version-1.
+- Must merge safely into main branch.
+- Separate teams:
+    - Angular Frontend Team
+    - Java Spring Boot Backend Team
+    - MySQL DB Team
+    - QA Team
+    - DevOps Team
+- Deployment currently on Linux VM.
+- Must be container-ready for future Docker/K8s.
+- Enterprise Dev → QA → UAT → Prod promotion model required.
+- No demo-level code allowed.
+
+========================================================
+VERSION-2 FUNCTIONAL REQUIREMENTS
+========================================================
+
+New Features:
+
+1) Add to Cart
+2) Cart Page
+3) Proceed to Checkout
+4) Dummy Payment Gateway
+5) Generate Order ID
+6) Save Order ID to MySQL (Studentdb)
+
+FLOW:
+
+Student selects a course →
+Clicks "Add to Cart" →
+Course stored in session/cart (backend-driven preferred) →
+
+Student clicks Cart icon →
+Shows selected courses list →
+Shows total price →
+Button: Proceed to Checkout →
+
+Checkout:
+- Simulate dummy payment success
+- Generate unique Order ID (UUID or formatted ID)
+- Save order ID in Studentdb linked to student
+
+Order ID must be stored only for that student.
+
+========================================================
+DATABASE REQUIREMENTS (MySQL)
+========================================================
+
+Database: Studentdb
+
+Existing Table:
+- student
+
+Version-2 must add:
+
+1) orders table
+
+orders:
+- id (UUID PK)
+- student_id (FK)
+- order_id (unique)
+- total_amount
+- payment_status
+- created_at
+
+2) cart table
+
+cart:
+- id (UUID PK)
+- student_id (FK)
+- course_id (from PostgreSQL course table)
+- added_at
+
+Provide:
+
+Flyway migration scripts:
+
+V3__create_cart_table.sql
+V4__create_orders_table.sql
+V5__add_indexes_cart_orders.sql
+
+Keep future-ready for:
+- payment_reference
+- payment_gateway_name
+- order_status enum
+
+Provide plain .sql script also for CI/CD simplicity.
+
+========================================================
+BACKEND REQUIREMENTS (Spring Boot)
+========================================================
+
+- Clean architecture
+- Service layer for cart & orders
+- Two DataSources:
+    - MySQL (write)
+    - PostgreSQL (read course info)
+- DTO mapping
+- Transaction management
+- Global exception handling
+- Structured logging
+- JWT authentication
+- Health endpoints:
+    /health
+    /health/live
+    /health/ready (check both DBs)
+
+Endpoints:
+
+POST /cart/add
+GET /cart
+DELETE /cart/{courseId}
+POST /checkout
+GET /orders
+
+Dummy Payment:
+- Simulate success
+- Log transaction
+- Generate order_id
+- Save in orders table
+
+========================================================
+FRONTEND REQUIREMENTS (Angular)
+========================================================
+
+- Angular latest stable
+- Angular Material
+- Cart icon with badge count
+- Cart page
+- Checkout page
+- Dummy payment screen
+- Animated course cards
+- Reactive forms
+- HTTP interceptor
+- Route guards
+- Loading spinner
+- Error states
+
+Pages:
+- Course Listing
+- Course Detail
+- Cart
+- Checkout
+- Order Success Page
+
+========================================================
+TESTING REQUIREMENTS
+========================================================
+
+Backend:
+- Unit tests (CartService, OrderService)
+- Integration tests (Controller + DB using Testcontainers)
+- API tests (SpringBootTest + RestAssured)
+- Mock payment gateway
+
+Frontend:
+- Component unit tests
+- Cart service tests
+- HTTP mock tests
+- Checkout flow test
+
+Future Version-3:
+- E2E automation strategy (Cypress)
+
+========================================================
+MERGE STRATEGY
+========================================================
+
+Must merge safely into main branch.
+
+Provide:
+
+- Branch model
+- Tagging:
+    student-v2.0.0
+- Flyway version ordering guidance
+- How to avoid migration conflict in monorepo
+- Rollback strategy
+
+Ensure:
+- Admin unaffected
+- Trainer unaffected
+- Student V1 flows unaffected
+
+========================================================
+DEPLOYMENT DOCUMENTATION REQUIRED
+========================================================
+
+Dev:
+- Setup MySQL
+- Setup PostgreSQL
+- Run Flyway migrate
+- Start Spring Boot
+- Start Angular
+
+QA:
+- Run integration tests
+- Run API tests
+- Validate cart flow
+- Validate checkout flow
+- Validate order persistence
+
+UAT:
+- Business validation
+- Multiple course cart test
+- Payment simulation test
+
+Production:
+- Build Angular
+- Build Spring Boot JAR
+- Run Flyway migrate
+- SCP artifacts to VM
+- Start with systemd
+- Configure Nginx reverse proxy
+- Configure SSL
+- Verify:
+    /health
+    /health/live
+    /health/ready
+- Validate checkout in Prod
+
+========================================================
+CI/CD REQUIREMENTS
+========================================================
+
+Backend pipeline:
+- Compile
+- Unit test
+- Integration test
+- Coverage
+- Package
+- Deploy
+
+Frontend pipeline:
+- Install
+- Unit test
+- Build
+- Deploy
+
+DB pipeline:
+- Validate migration
+- Flyway migrate
+- Rollback documentation
+
+========================================================
+CONTAINER READINESS
+========================================================
+
+Provide:
+- Dockerfile (Spring Boot)
+- Dockerfile (Angular)
+- docker-compose example
+- Env-based configuration
+- No hardcoded secrets
+
+========================================================
+RESPONSE STRUCTURE REQUIRED
+========================================================
+
+1) High-level architecture explanation
+2) Multi-DB transaction strategy
+3) Folder structure (frontend + backend + db)
+4) Flyway scripts (V3, V4, V5)
+5) MySQL plain SQL
+6) Spring Boot production skeleton
+7) Angular production skeleton
+8) Sample unit test
+9) Sample integration test
+10) Sample API test
+11) Dev → QA → UAT → Prod deployment documentation
+12) CI/CD YAML examples
+13) Safe merge checklist
+14) Future Version-3 roadmap
+
+IMPORTANT:
+Everything must follow enterprise production standards.
+System must be VM deployable.
+System must be container-ready.
+No simplified examples.
