@@ -1,0 +1,250 @@
+You are a Principal Enterprise Architect, Node.js Backend Lead, React Frontend Lead, DBA, DevOps Lead, and QA Architect.
+
+We are building Admin Portal Version-3.
+
+IMPORTANT CONTEXT:
+
+- Single monorepo main branch.
+- Admin Portal (React + Node + PostgreSQL) exists.
+- Trainer Portal (Vue + Python + PostgreSQL) exists.
+- Student Portal (Angular + Java + MySQL) exists.
+- Student purchases are stored in MySQL (Studentdb).
+- Admin V3 must integrate cross-database data from MySQL into PostgreSQL.
+- Must NOT break existing portals.
+- Deployment on Linux VM.
+- Must be container-ready.
+- Separate teams:
+    - React Frontend
+    - Node Backend
+    - PostgreSQL DB Team
+    - QA
+    - DevOps
+- Enterprise Dev → QA → UAT → Prod workflow required.
+- Production-grade code only.
+
+========================================================
+VERSION-3 FUNCTIONAL REQUIREMENT
+========================================================
+
+When Admin logs in →
+Clicks button-3 "Student" →
+
+System must:
+
+1) Connect to MySQL Studentdb
+2) Fetch purchased student details:
+   - student name
+   - course name
+   - order_id
+3) Save this data into PostgreSQL database:
+   Database: studentDB
+   Table: student
+
+PostgreSQL student table must contain:
+- id UUID PK
+- student_name
+- course_name
+- order_id
+- synced_at timestamp
+
+Must avoid duplicate order_id insertion.
+
+========================================================
+ARCHITECTURE REQUIREMENTS
+========================================================
+
+Backend (Node.js):
+
+- Two DB connections:
+    - PostgreSQL (write)
+    - MySQL (read)
+- Clean layered architecture:
+    Controller → Service → Repository
+- Transaction safety for Postgres writes
+- Duplicate prevention
+- Logging of sync operations
+- Health endpoints:
+    /health
+    /health/live
+    /health/ready (check both DBs)
+
+Optional:
+- Provide batch sync strategy
+
+========================================================
+DATABASE REQUIREMENTS (PostgreSQL)
+========================================================
+
+Database: studentDB
+Table: student
+
+Provide Flyway migration:
+
+V9__create_student_sync_table.sql
+V10__add_unique_index_order_id.sql
+
+Constraints:
+- Unique index on order_id
+- Index on student_name
+- Index on course_name
+
+Future-ready:
+- sync_status column
+- source_system column
+
+Provide Flyway folder structure and configuration.
+
+========================================================
+FRONTEND REQUIREMENTS (React)
+========================================================
+
+When Admin clicks "Student":
+
+- Fetch synced student data from Postgres
+- Display in table:
+    - Student Name
+    - Course Name
+    - Order ID
+    - Synced Time
+- Pagination
+- Loading state
+- Error state
+- Refresh button (trigger sync)
+
+========================================================
+BACKEND ENDPOINTS
+========================================================
+
+POST /admin/student/sync
+GET /admin/student
+GET /admin/student/{orderId}
+
+========================================================
+TESTING REQUIREMENTS
+========================================================
+
+Backend:
+- Unit test (sync service)
+- Integration test (MySQL + PostgreSQL using testcontainers)
+- API test (supertest)
+- Duplicate prevention test
+- Health endpoint test
+
+Frontend:
+- Component unit tests
+- API mock tests
+- Sync button test
+
+========================================================
+MERGE STRATEGY
+========================================================
+
+Must merge into main branch safely.
+
+Provide:
+- Branching model
+- Tagging:
+    admin-v3.0.0
+- Flyway ordering guidance
+- Migration conflict avoidance
+- Rollback strategy
+
+Ensure:
+- Trainer portal unaffected
+- Student portal unaffected
+- Admin V1 & V2 flows intact
+
+========================================================
+DEPLOYMENT DOCUMENTATION REQUIRED
+========================================================
+
+Dev:
+- Configure MySQL connection
+- Configure PostgreSQL connection
+- Run Flyway migrate
+- Start Node backend
+- Start React frontend
+- Test sync manually
+
+QA:
+- Run integration tests
+- Validate cross-DB connectivity
+- Validate duplicate prevention
+- Validate health endpoints
+
+UAT:
+- Validate student list display
+- Validate sync accuracy
+- Validate performance
+
+Production:
+- Build React
+- Package Node app
+- Run Flyway migrate
+- SCP artifacts to VM
+- Start with PM2
+- Configure Nginx reverse proxy
+- Configure SSL
+- Verify:
+    /health
+    /health/live
+    /health/ready
+
+========================================================
+CI/CD REQUIREMENTS
+========================================================
+
+Backend pipeline:
+- Lint
+- Unit tests
+- Integration tests
+- Coverage
+- Build
+- Deploy
+
+Frontend pipeline:
+- Install
+- Unit test
+- Build
+- Deploy
+
+DB pipeline:
+- Validate Flyway
+- Apply migration
+- Rollback documentation
+
+========================================================
+CONTAINER READINESS
+========================================================
+
+Provide:
+- Dockerfile (Node)
+- docker-compose example with:
+    - postgres
+    - mysql
+- Env-based configuration
+- No hardcoded credentials
+
+========================================================
+RESPONSE STRUCTURE REQUIRED
+========================================================
+
+1) High-level cross-database architecture explanation
+2) Data synchronization strategy
+3) Folder structure
+4) Flyway scripts (V9, V10)
+5) Backend production skeleton
+6) React production skeleton
+7) Sample unit test
+8) Sample integration test
+9) Sample API test
+10) Dev → QA → UAT → Prod documentation
+11) CI/CD YAML examples
+12) Safe merge checklist
+13) Future Version-4 roadmap
+
+IMPORTANT:
+Everything must follow enterprise production standards.
+System must be VM deployable.
+System must be container-ready.
+No simplified examples.
